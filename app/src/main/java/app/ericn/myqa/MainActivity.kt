@@ -1,7 +1,9 @@
 package app.ericn.myqa
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import kotlinx.coroutines.*
 
@@ -19,9 +21,11 @@ class MainActivity : AppCompatActivity() {
             AppDatabase::class.java, "database-name"
         ).build()
         val dao = db.dao()
-        val deferred = runBlocking {
-            withContext(Dispatchers.IO) {
-                dao.insertQuestions(dummyQuestions[1])
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            dao.insertQuestionsPublic(dummyQuestions[3])
+            val async = async {
+                Log.e("MainActivity", "testing")
             }
         }
     }

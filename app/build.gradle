@@ -45,7 +45,8 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    def kotlin_coroutines_version = '1.6.4'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines_version"
 
     /*
     Room
@@ -59,4 +60,14 @@ dependencies {
 
     // optional - RxJava2 support for Room
     implementation "androidx.room:room-rxjava2:$room_version"
+
+    /**
+     * Android-specific Dispatchers.Main
+     */
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines_version"
+
+    /*
+    For LifecycleScope aka. CoroutineScope that can be used in Activity, Fragment
+     */
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 }
