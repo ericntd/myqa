@@ -37,6 +37,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
@@ -67,6 +71,8 @@ dependencies {
 
     // optional - RxJava2 support for Room
     implementation "androidx.room:room-rxjava2:$room_version"
+    // Flow
+    implementation "androidx.room:room-ktx:$room_version"
 
     /**
      * Android-specific Dispatchers.Main

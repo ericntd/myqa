@@ -3,6 +3,8 @@ package app.ericn.myqa
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface QnADao {
@@ -12,6 +14,9 @@ interface QnADao {
     fun insertOptions(data: List<OptionEntity>): List<Long>
     @Insert(onConflict = REPLACE)
     fun insertAnswers(data: List<AnswerEntity>): List<Long>
+
+    @Query("SELECT question.text as question, answer.text_value as answer FROM question, answer WHERE question.id = answer.question_id AND answer.option_id = ''")
+    fun readTextAnswers(): Flow<List<TextAnswer>>
 }
 
 val dummyQuestions = listOf(
