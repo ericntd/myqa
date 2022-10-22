@@ -1,5 +1,6 @@
 package app.ericn.myqa
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 

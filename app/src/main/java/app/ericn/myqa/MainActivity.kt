@@ -23,7 +23,9 @@ class MainActivity : AppCompatActivity() {
         val dao = db.dao()
 
         lifecycleScope.launch(Dispatchers.IO) {
-            dao.insertQuestionsPublic(dummyQuestions[3])
+            dao.insertQuestions(dummyQuestions)
+            dao.insertOptions(dummyOptions)
+            dao.insertAnswers(dummyAnswers)
             val async = async {
                 Log.e("MainActivity", "testing")
             }

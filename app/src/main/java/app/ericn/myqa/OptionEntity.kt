@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "option")
 data class OptionEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey val id: String,
     @ColumnInfo(name = "question_id") val questionId: String,
     val text: String,
     val humanId: String?
