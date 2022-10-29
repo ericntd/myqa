@@ -19,7 +19,7 @@ interface QnADao {
     fun readTextAnswers(): Flow<List<TextAnswer>>
 
     @Query("SELECT * from question LEFT JOIN option ON question_id")
-    fun readMcqs(): Flow<Map<QuestionEntity, OptionEntity>>
+    fun readMcqs(): Flow<Map<QuestionEntity, List<OptionEntity>>>
 }
 
 val dummyQuestions = listOf(

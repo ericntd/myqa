@@ -50,7 +50,11 @@ class MainActivity : AppCompatActivity() {
                         return@flatMapConcat dao.readMcqs()
                     }
                     .collect(FlowCollector { map ->
-                        println("success")
+                        val items = map.map { entry ->
+                            ListUiItem.MultiChoice(entry.key, answers = emptyList(), options = entry.value)
+                        }
+                            .toList()
+                        adapter.submitList(items)
                     })
             }
         }

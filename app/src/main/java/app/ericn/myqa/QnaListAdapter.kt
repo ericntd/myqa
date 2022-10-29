@@ -4,14 +4,24 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import app.ericn.myqa.databinding.ListItemBinding
+import com.google.android.material.chip.Chip
 
 class QnaListAdapter: RecyclerView.Adapter<QnaListAdapter.QaViewHolder>() {
     class QaViewHolder(private val binding: ListItemBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ListUiItem) {
-            binding.question.text = item.question
             when (item) {
-                is ListUiItem.MultiChoice -> binding.answers.text = item.answers.joinToString(", ") { it }
-                is ListUiItem.Text -> binding.answers.text = item.answer
+                is ListUiItem.MultiChoice -> {
+                    binding.question.text = "${item.question.id}:${item.question.text}"
+                    item.options.forEach { option ->
+                        binding.chips.addView(Chip(itemView.context).apply {
+                            text = "${option.id}:${option.text}"
+                        })
+                    }
+                }
+                is ListUiItem.Text -> {
+                    binding.question.text = item.question
+                    binding.chips.removeAllViews()
+                }
             }
         }
 
@@ -28,7 +38,7 @@ class QnaListAdapter: RecyclerView.Adapter<QnaListAdapter.QaViewHolder>() {
     }
 
     override fun getItemCount() = items.size
-    fun submitList(list: List<ListUiItem.Text>) {
+    fun submitList(list: List<ListUiItem>) {
         items.clear()
         items.addAll(list)
         notifyDataSetChanged()
