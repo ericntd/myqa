@@ -39,10 +39,11 @@ class MainActivity : AppCompatActivity() {
                         If no data, populate first
                          */
                         if (map.isEmpty()) {
-                            return@flatMapConcat flow<Unit> {
+                            return@flatMapConcat flow {
                                 dao.insertQuestions(dummyQuestions)
                                 dao.insertOptions(dummyOptions)
                                 dao.insertAnswers(dummyAnswers)
+                                emit(Unit)
                             }
                         } else {
                             return@flatMapConcat flowOf(Unit)
@@ -50,15 +51,15 @@ class MainActivity : AppCompatActivity() {
                     }
                     .flatMapConcat {
                         startTime = System.currentTimeMillis()
-                        return@flatMapConcat dao.readMcqAnswers1()
+                        return@flatMapConcat dao.readMcqAnswers()
                     }
                     .flowOn(Dispatchers.IO)
-                    .collect(FlowCollector { map ->
+                    .collect(FlowCollector { list ->
                         val end = System.currentTimeMillis()
                         Log.d(tag, "time taken to fetch Q&A from DB: ${end- startTime}ms")
-                        val items = map.mapNotNull {
-                            if (it.options.isNotEmpty()) {
-                                ListUiItem.MultiChoice(it.question, it.answers, it.options)
+                        val items = list.mapNotNull { tripe ->
+                            if (tripe.second.isNotEmpty()) {
+                                ListUiItem.MultiChoice(tripe.first, tripe.third, tripe.second)
                             } else {
                                 null
                             }

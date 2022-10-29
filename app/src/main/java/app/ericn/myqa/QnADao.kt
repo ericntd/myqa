@@ -1,10 +1,13 @@
 package app.ericn.myqa
 
+import androidx.annotation.WorkerThread
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
 
 @Dao
 interface QnADao {
@@ -24,24 +27,33 @@ interface QnADao {
     /**
      * Classic approach
      */
-    @Query("SELECT * FROM question")
-    fun readMcqAnswers1(): Flow<List<QuestionWithRelations>>
+    @Query("SELECT * FROM answer")
+    fun readAnswers(): Flow<List<AnswerEntity>>
 
     /**
-     * Multi-map #1
-     * Doesn't even compile
-     * "Not sure how to convert a Cursor to this method's return type"
+     * Read the questions and options first
+     * Then read the answers
+     * Finally combine questions and answers
      */
-//    @Query("SELECT * FROM (SELECT * from question INNER JOIN option ON option.question_id = question.question_id) AS q INNER JOIN answer ON answer.question_id = q.question_id")
-//    fun readMcqAnswers2(): Flow<Map<Map<QuestionEntity, List<OptionEntity>>, List<AnswerEntity>>>
-
-    /**
-     * Multi-map #2
-     * Doesn't even compile
-     * "Not sure how to convert a Cursor to this method's return type"
-     */
-//    @Query("SELECT * FROM question INNER JOIN (SELECT * FROM option INNER JOIN answer ON answer.option_id = option.option_id) as a ON a.question_id = question.question_id")
-//    fun readMcqAnswers3(): Flow<Map<QuestionEntity, Map<OptionEntity, AnswerEntity>>>
+    @WorkerThread
+    fun readMcqAnswers(): Flow<List<Triple<QuestionEntity, List<OptionEntity>, List<AnswerEntity>>>> {
+        return readMcqs()
+            .flatMapConcat { questionOptionMap ->
+                readAnswers()
+                    .flatMapConcat { answers ->
+                        flow {
+                            val answerMap: Map<String, List<AnswerEntity>> = answers.groupBy { it.questionId }
+                            val list = questionOptionMap.map { entry ->
+                                val question: QuestionEntity = entry.key
+                                val options: List<OptionEntity> = entry.value
+                                val answers = answerMap[entry.key.id]?: emptyList()
+                                Triple(question, options, answers)
+                            }.toList()
+                            emit(list)
+                        }
+                    }
+            }
+    }
 }
 
 val dummyQuestions = listOf(
