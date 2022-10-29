@@ -9,6 +9,7 @@ import com.google.android.material.chip.Chip
 class QnaListAdapter: RecyclerView.Adapter<QnaListAdapter.QaViewHolder>() {
     class QaViewHolder(private val binding: ListItemBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ListUiItem) {
+            binding.chips.removeAllViews()
             when (item) {
                 is ListUiItem.MultiChoice -> {
                     binding.question.text = "${item.question.id}:${item.question.text}"
@@ -20,7 +21,6 @@ class QnaListAdapter: RecyclerView.Adapter<QnaListAdapter.QaViewHolder>() {
                 }
                 is ListUiItem.Text -> {
                     binding.question.text = item.question
-                    binding.chips.removeAllViews()
                 }
             }
         }

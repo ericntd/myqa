@@ -15,10 +15,10 @@ interface QnADao {
     @Insert(onConflict = REPLACE)
     fun insertAnswers(data: List<AnswerEntity>): List<Long>
 
-    @Query("SELECT question.text as question, answer.text_value as answer FROM question, answer WHERE question.id = answer.question_id AND answer.option_id = ''")
+    @Query("SELECT question.text as question, answer.text_value as answer FROM question, answer WHERE question.question_id = answer.question_id AND answer.option_id = ''")
     fun readTextAnswers(): Flow<List<TextAnswer>>
 
-    @Query("SELECT * from question LEFT JOIN option ON question_id")
+    @Query("SELECT * from question INNER JOIN option ON option.question_id = question.question_id")
     fun readMcqs(): Flow<Map<QuestionEntity, List<OptionEntity>>>
 }
 
