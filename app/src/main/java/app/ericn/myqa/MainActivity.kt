@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
                                 dao.insertAnswers(dummyAnswers)
                             }
                         } else {
-                            return@flatMapConcat emptyFlow()
+                            return@flatMapConcat flowOf(Unit)
                         }
                     }
                     .flatMapConcat {
