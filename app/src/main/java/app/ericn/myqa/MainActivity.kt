@@ -1,6 +1,7 @@
 package app.ericn.myqa
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -10,7 +11,9 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
 class MainActivity : AppCompatActivity() {
+    private val tag = "MainActivity"
     private val adapter: QnaListAdapter = QnaListAdapter()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
@@ -28,8 +31,8 @@ class MainActivity : AppCompatActivity() {
         val dao = db.dao()
 
         lifecycleScope.launch(Dispatchers.Main) {
-            // then render
             withContext(Dispatchers.Main) {
+                var startTime: Long = 0
                 dao.readMcqs()
                     .flatMapConcat { map ->
                         /*
@@ -46,10 +49,13 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     .flatMapConcat {
+                        startTime = System.currentTimeMillis()
                         return@flatMapConcat dao.readMcqAnswers1()
                     }
                     .flowOn(Dispatchers.IO)
                     .collect(FlowCollector { map ->
+                        val end = System.currentTimeMillis()
+                        Log.d(tag, "time taken to fetch Q&A from DB: ${end- startTime}ms")
                         val items = map.mapNotNull {
                             if (it.options.isNotEmpty()) {
                                 ListUiItem.MultiChoice(it.question, it.answers, it.options)
