@@ -7,10 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import app.ericn.myqa.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.observeOn
+import kotlinx.coroutines.flow.*
 
 class MainActivity : AppCompatActivity() {
     private val adapter: QnaListAdapter = QnaListAdapter()
@@ -20,10 +17,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.qaList.adapter = adapter
 
-        populateData()
+        fetchAndRender()
     }
 
-    private fun populateData() {
+    private fun fetchAndRender() {
         val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "database-name"
@@ -31,22 +28,29 @@ class MainActivity : AppCompatActivity() {
         val dao = db.dao()
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val populateJob = async(Dispatchers.IO) {
-                dao.insertQuestions(dummyQuestions)
-                dao.insertOptions(dummyOptions)
-                dao.insertAnswers(dummyAnswers)
-            }
-            // make sure we finish populating db first
-            populateJob.await()
             // then render
             withContext(Dispatchers.Main) {
-                dao.readTextAnswers()
+                dao.readMcqs()
                     .flowOn(Dispatchers.IO)
-                    .collect(FlowCollector { textAnswers ->
-                        val list = textAnswers.map {
-                            ListUiItem.Text(it.question, it.answer?: "")
+                    .flatMapConcat { map ->
+                        /*
+                        If no data, populate first
+                         */
+                        if (map.isEmpty()) {
+                            return@flatMapConcat flow<Unit> {
+                                dao.insertQuestions(dummyQuestions)
+                                dao.insertOptions(dummyOptions)
+                                dao.insertAnswers(dummyAnswers)
+                            }
+                        } else {
+                            return@flatMapConcat emptyFlow()
                         }
-                        adapter.submitList(list)
+                    }
+                    .flatMapConcat {
+                        return@flatMapConcat dao.readMcqs()
+                    }
+                    .collect(FlowCollector { map ->
+                        println("success")
                     })
             }
         }
