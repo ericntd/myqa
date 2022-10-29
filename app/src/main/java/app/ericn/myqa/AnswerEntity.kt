@@ -8,7 +8,7 @@ import androidx.room.Entity
     primaryKeys = ["option_id", "profile_id", "question_id"]
 )
 data class AnswerEntity(
-    @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "answer_id") val id: String,
     /**
      * Only Applicable to choice-based questions
      */
@@ -18,5 +18,5 @@ data class AnswerEntity(
     /**
      * Applicable to text-based questions
      */
-    @ColumnInfo(name = "text_value") val textValue: String?
+    @ColumnInfo(name = "answer_text") val textValue: String?
 )

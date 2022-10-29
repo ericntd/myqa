@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "question")
 data class QuestionEntity(
     @PrimaryKey @ColumnInfo(name = "question_id") val id: String,
-    val text: String
+    @ColumnInfo(name = "question_text") val text: String
 )
