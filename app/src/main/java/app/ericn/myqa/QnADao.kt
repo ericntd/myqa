@@ -20,6 +20,28 @@ interface QnADao {
 
     @Query("SELECT * from question INNER JOIN option ON option.question_id = question.question_id")
     fun readMcqs(): Flow<Map<QuestionEntity, List<OptionEntity>>>
+
+    /**
+     * Classic approach
+     */
+    @Query("SELECT * FROM question")
+    fun readMcqAnswers1(): Flow<List<QuestionWithRelations>>
+
+    /**
+     * Multi-map #1
+     * Doesn't even compile
+     * "Not sure how to convert a Cursor to this method's return type"
+     */
+//    @Query("SELECT * FROM (SELECT * from question INNER JOIN option ON option.question_id = question.question_id) AS q INNER JOIN answer ON answer.question_id = q.question_id")
+//    fun readMcqAnswers2(): Flow<Map<Map<QuestionEntity, List<OptionEntity>>, List<AnswerEntity>>>
+
+    /**
+     * Multi-map #2
+     * Doesn't even compile
+     * "Not sure how to convert a Cursor to this method's return type"
+     */
+//    @Query("SELECT * FROM question INNER JOIN (SELECT * FROM option INNER JOIN answer ON answer.option_id = option.option_id) as a ON a.question_id = question.question_id")
+//    fun readMcqAnswers3(): Flow<Map<QuestionEntity, Map<OptionEntity, AnswerEntity>>>
 }
 
 val dummyQuestions = listOf(

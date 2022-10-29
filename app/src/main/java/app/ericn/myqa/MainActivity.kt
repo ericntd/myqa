@@ -46,14 +46,17 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     .flatMapConcat {
-                        return@flatMapConcat dao.readMcqs()
+                        return@flatMapConcat dao.readMcqAnswers1()
                     }
                     .flowOn(Dispatchers.IO)
                     .collect(FlowCollector { map ->
-                        val items = map.map { entry ->
-                            ListUiItem.MultiChoice(entry.key, answers = emptyList(), options = entry.value)
-                        }
-                            .toList()
+                        val items = map.mapNotNull {
+                            if (it.options.isNotEmpty()) {
+                                ListUiItem.MultiChoice(it.question, it.answers, it.options)
+                            } else {
+                                null
+                            }
+                        }.toList()
                         adapter.submitList(items)
                     })
             }
