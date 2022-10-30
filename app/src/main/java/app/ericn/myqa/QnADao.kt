@@ -6,8 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.zip
 
 @Dao
 interface QnADao {
@@ -31,28 +30,23 @@ interface QnADao {
     fun readAnswers(): Flow<List<AnswerEntity>>
 
     /**
-     * Read the questions and options first
-     * Then read the answers
+     * Read the questions and options first and read the answers in parallel
      * Finally combine questions and answers
      */
     @WorkerThread
     fun readMcqAnswers(): Flow<List<Triple<QuestionEntity, List<OptionEntity>, List<AnswerEntity>>>> {
-        return readMcqs()
-            .flatMapConcat { questionOptionMap ->
-                readAnswers()
-                    .flatMapConcat { answers ->
-                        flow {
-                            val answerMap: Map<String, List<AnswerEntity>> = answers.groupBy { it.questionId }
-                            val list = questionOptionMap.map { entry ->
-                                val question: QuestionEntity = entry.key
-                                val options: List<OptionEntity> = entry.value
-                                val answers = answerMap[entry.key.id]?: emptyList()
-                                Triple(question, options, answers)
-                            }.toList()
-                            emit(list)
-                        }
-                    }
-            }
+        return readMcqs().zip(
+            readAnswers()
+        ) { questionOptionMap, answers ->
+            val answerMap: Map<String, List<AnswerEntity>> = answers.groupBy { it.questionId }
+            val list = questionOptionMap.map { entry ->
+                val question: QuestionEntity = entry.key
+                val options: List<OptionEntity> = entry.value
+                val answers = answerMap[entry.key.id] ?: emptyList()
+                Triple(question, options, answers)
+            }.toList()
+            return@zip list
+        }
     }
 }
 
