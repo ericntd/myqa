@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:padding="16dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/question"
+        android:textStyle="bold"
+        tools:text="the question"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/answers"
+        tools:text="the answer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </androidx.appcompat.widget.LinearLayoutCompat>

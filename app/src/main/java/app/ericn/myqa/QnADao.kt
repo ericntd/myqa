@@ -10,8 +10,10 @@ import kotlinx.coroutines.flow.Flow
 interface QnADao {
     @Insert(onConflict = REPLACE)
     fun insertQuestions(data: List<QuestionEntity>): List<Long>
+
     @Insert(onConflict = REPLACE)
     fun insertOptions(data: List<OptionEntity>): List<Long>
+
     @Insert(onConflict = REPLACE)
     fun insertAnswers(data: List<AnswerEntity>): List<Long>
 
