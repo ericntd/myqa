@@ -7,10 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import app.ericn.myqa.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.observeOn
+import kotlinx.coroutines.flow.*
 
 class MainActivity : AppCompatActivity() {
     private val adapter: QnaListAdapter = QnaListAdapter()
@@ -20,10 +17,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.qaList.adapter = adapter
 
-        populateData()
+        fetchAndRender()
     }
 
-    private fun populateData() {
+    private fun fetchAndRender() {
         val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "database-name"
@@ -31,23 +28,34 @@ class MainActivity : AppCompatActivity() {
         val dao = db.dao()
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val populateJob = async(Dispatchers.IO) {
-                dao.insertQuestions(dummyQuestions)
-                dao.insertOptions(dummyOptions)
-                dao.insertAnswers(dummyAnswers)
-            }
-            // make sure we finish populating db first
-            populateJob.await()
             // then render
             withContext(Dispatchers.Main) {
                 dao.readTextAnswers()
+                    .flatMapConcat { list ->
+                    /*
+                    If no data, populate first
+                    Otherwise return
+                     */
+                        if (list.isEmpty()) {
+                            return@flatMapConcat flow {
+                                dao.insertQuestions(dummyQuestions)
+                                dao.insertOptions(dummyOptions)
+                                dao.insertAnswers(dummyAnswers)
+                            }
+                        } else {
+                            return@flatMapConcat flowOf(Unit)
+                        }
+                    }
+                    .flatMapConcat {
+                        dao.readTextAnswers()
+                    }
                     .flowOn(Dispatchers.IO)
-                    .collect(FlowCollector { textAnswers ->
+                    .collect { textAnswers ->
                         val list = textAnswers.map {
-                            ListUiItem.Text(it.question, it.answer?: "")
+                            ListUiItem.Text(it.question, it.answer ?: "")
                         }
                         adapter.submitList(list)
-                    })
+                    }
             }
         }
     }
