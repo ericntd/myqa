@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
             // then render
             withContext(Dispatchers.Main) {
                 dao.readMcqs()
-                    .flowOn(Dispatchers.IO)
                     .flatMapConcat { map ->
                         /*
                         If no data, populate first
@@ -49,6 +48,7 @@ class MainActivity : AppCompatActivity() {
                     .flatMapConcat {
                         return@flatMapConcat dao.readMcqs()
                     }
+                    .flowOn(Dispatchers.IO)
                     .collect(FlowCollector { map ->
                         val items = map.map { entry ->
                             ListUiItem.MultiChoice(entry.key, answers = emptyList(), options = entry.value)
