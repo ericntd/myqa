@@ -8,6 +8,6 @@ import androidx.room.PrimaryKey
 data class OptionEntity(
     @PrimaryKey @ColumnInfo(name = "option_id") val id: String,
     @ColumnInfo(name = "question_id") val questionId: String,
-    val text: String,
+    @ColumnInfo(name = "option_text") val text: String,
     val humanId: String?
 )

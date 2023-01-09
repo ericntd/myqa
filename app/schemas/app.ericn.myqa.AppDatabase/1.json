@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6b05f5f8173310a548250b35bea72faa",
+    "identityHash": "5517fed0bba03f1c4893963a613a853b",
     "entities": [
       {
         "tableName": "question",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`question_id` TEXT NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`question_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`question_id` TEXT NOT NULL, `question_text` TEXT NOT NULL, PRIMARY KEY(`question_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -16,7 +16,7 @@
           },
           {
             "fieldPath": "text",
-            "columnName": "text",
+            "columnName": "question_text",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -32,7 +32,7 @@
       },
       {
         "tableName": "option",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`option_id` TEXT NOT NULL, `question_id` TEXT NOT NULL, `text` TEXT NOT NULL, `humanId` TEXT, PRIMARY KEY(`option_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`option_id` TEXT NOT NULL, `question_id` TEXT NOT NULL, `option_text` TEXT NOT NULL, `humanId` TEXT, PRIMARY KEY(`option_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -48,7 +48,7 @@
           },
           {
             "fieldPath": "text",
-            "columnName": "text",
+            "columnName": "option_text",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -118,7 +118,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6b05f5f8173310a548250b35bea72faa')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5517fed0bba03f1c4893963a613a853b')"
     ]
   }
 }
